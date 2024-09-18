@@ -1,0 +1,161 @@
+# PROGRAM - 1:(To Extract text data from HTML )
+from parsel import Selector
+import requests
+
+response = requests.get("https://quotes.toscrape.com/").text
+selector = Selector(text=response)
+
+quotes_data = [
+    {
+        'quote': quote_section.xpath('.//span[@class="text"]//text()').get(),
+        'author': quote_section.xpath('.//small[@class="author"]//text()').get(),
+        'tags': ', '.join(quote_section.xpath('.//div[@class="tags"]//a[@class="tag"]//text()').getall())
+    }
+    for quote_section in selector.css('div.quote')
+]
+
+
+for quote in quotes_data:
+    print(f'\n\n{quote["quote"]}\n\nBy: {quote["author"]}\n\nTags: {quote["tags"]}\n\n{"="*30}\n\n')
+
+# PROGRAM - 1:(To Extract text data from HTML )
+from parsel import Selector
+import requests
+
+response = requests.get("https://quotes.toscrape.com/").text
+selector = Selector(text=response)
+
+quotes_data = [
+    {
+        'quote': quote_section.xpath('.//span[@class="text"]//text()').get(),
+        'author': quote_section.xpath('.//small[@class="author"]//text()').get(),
+        'tags': ', '.join(quote_section.xpath('.//div[@class="tags"]//a[@class="tag"]//text()').getall())
+    }
+    for quote_section in selector.css('div.quote')
+]
+
+for quote in quotes_data:
+    print(f'\n\n{quote["quote"]}\n\nBy: {quote["author"]}\n\nTags: {quote["tags"]}\n\n{"="*30}\n\n')
+
+
+#PROGRAM - 2 (Program to extract the data from a web page)
+import requests
+from bs4 import BeautifulSoup
+
+url = "https://en.wikipedia.org/wiki/Help:Searching_from_a_web_browser"
+
+response = requests.get(url)
+if response.status_code == 200:
+    soup = BeautifulSoup(response.text, 'html.parser')
+    paragraph = soup.find_all('p')
+
+for paragraph in paragraph:
+  print(paragraph.text)
+
+else:
+    print("Failed to fetch the URL.")
+
+
+#PROGRAM - 3(Create a custom look of dictionary and look for short words)
+
+lookup_dictionary = {
+
+    "apple" : "A small fruit&quot.",
+    "cat"   : "A small domestical carnivorous mammal.",
+    "dog"   : "A domestical carnivorous animal that typically has a long snourt,anacute smell of sense,and a barking,howling,or whining voice.",
+    "car"   : "A road vehicle, typically with four wheel spowered by an small number of people"
+
+}
+
+short_words = []
+min_word_length = 4
+
+for word in lookup_dictionary:
+    if len(word) < min_word_length:
+        short_words.append(word)
+
+print(short_words)
+
+#PROGRAM - 4(Demonstrate spell correction program uusing textblob)
+
+from textblob import TextBlob
+
+def correct_text(text):
+    b = TextBlob(text)
+    words = b.words
+    corrected_words = [word.correct() for word in words]
+    corrected_text = ' '.join(corrected_words)
+    return corrected_text
+
+text = "heloo , how are you"
+correct_text = correct_text(text)
+print(correct_text)
+
+#programb - 5 (Compute the frequency of the words and plot the lenght>3)
+
+from collections import Counter
+
+sentence = 'Computer science computer science'
+word_count = Counter(sentence.split())
+
+for word, count in word_count.items():
+    print(f"Frequency of {word}: {count}")
+
+# PROGRAM - 6 (Tmplement the N-Gram is the given statement)
+
+from nltk import ngrams
+sentence=input("Enter the sequence: ")
+n = int(input("Enter the value of n: "))
+n_grams=ngrams(sentence.split(),n)
+for grams in n_grams:
+    print(grams)
+# PROGRAM - 7 (Generating Co-occurance matrix)
+
+import pandas as pd
+df=pd.DataFrame({'Mobile':['Samsung','Vivo','Oppo','Redmi','IQ','Apple'],
+                'Model':[1,1,0,0,1,2],
+                'Processor':[1,2,3,0,9,0],
+                'Battery':[1,4,5,6,0,0]}).set_index('Mobile')
+print(df)
+
+#PROGRAM - 8 (NOUN extaction)
+
+import nltk
+from textblob import TextBlob
+nltk.download('brown')
+nltk.download('punkt')
+text=TextBlob("John is studying at Stanford University in California")
+noun_phrases=text.noun_phrases
+print(noun_phrases)
+
+#PROGRAM - 9 (Text to Speech)
+
+from gtts import gTTS
+import os
+gTTS("I Love NLP",lang='en').save("welcome.mp3")
+os.system("start welcome.mp3")
+
+#PROGRAM - 10 (Sentimental  Analysis)
+import nltk
+from nltk.corpus import movie_reviews
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+import torch
+
+nltk.download('movie_reviews')
+
+tokenizer = AutoTokenizer.from_pretrained("bhadresh-savani/distilbert-base-uncased-emotion")
+model = AutoModelForSequenceClassification.from_pretrained("bhadresh-savani/distilbert-base-uncased-emotion")
+labels = ['anger', 'disgust', 'fear', 'joy', 'neutral', 'sadness', 'surprise']
+
+sentences = [(movie_reviews.raw(fileid), fileid.split('/')[0]) for fileid in movie_reviews.fileids()]
+
+for sentence, category in sentences[:10]:
+    inputs = tokenizer(sentence, return_tensors="pt", truncation=True, padding=True, max_length=512)
+    with torch.no_grad():
+        outputs = model(**inputs)
+    probs = torch.nn.functional.softmax(outputs.logits, dim=-1)
+    highest_score = torch.argmax(probs, dim=-1).item()
+    print(f"Review: {sentence[:200]}...")
+    print(f"Category: {category}")
+    print(f"Sentiment: {labels[highest_score]}, Confidence: {probs[0][highest_score].item():.2f}")
+    print("-" * 40)
